@@ -76,24 +76,25 @@ template:
       labels:
         app: my-app
         
- spec:
-     topologySpreadConstraints:
-       - maxSkew: 1
-          topologyKey: topology.kubernetes.io/zone
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-             app: my-app
-      containers:
-        - name: my-app
-          image: yourusername/my-app:latest
-          ports:
-            - containerPort: 3000
-          envFrom:
-            - configMapRef:
-                name: app-config
-            - secretRef:
-                name: app-secrets
+  spec:
+   topologySpreadConstraints:
+     - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+        app: my-app
+    containers:
+      - name: my-app
+         image: yourusername/my-app:latest
+         
+   ports:
+   - containerPort: 3000
+     envFrom:
+     - configMapRef:
+        name: app-config
+       - secretRef:
+          name: app-secrets
           livenessProbe:
             httpGet:
               path: /health
@@ -119,15 +120,17 @@ template:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: my-app-hpa
-  namespace: staging
+name: my-app-hpa
+ namespace: staging
+ 
 spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
+scaleTargetRef:
+  apiVersion: apps/v1
+   kind: Deployment
     name: my-app
   minReplicas: 3
   maxReplicas: 20
+  
   metrics:
     - type: Resource
       resource:
@@ -135,6 +138,7 @@ spec:
         target:
           type: Utilization
           averageUtilization: 60
+          
   behavior:
     scaleUp:
       stabilizationWindowSeconds: 30
@@ -142,12 +146,14 @@ spec:
         - type: Pods
           value: 3
           periodSeconds: 60
-    scaleDown:
+          
+  scaleDown:
       stabilizationWindowSeconds: 300
       policies:
         - type: Pods
           value: 1
           periodSeconds: 120
+          
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
