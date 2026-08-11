@@ -34,13 +34,13 @@ check "image matches"            "
 echo ""
 echo "=== $PASS passed, $FAIL failed ==="
 [ $FAIL -eq 0 ] || exit 1
-# docs/reliability-plan.md
+docs/reliability-plan.md
 
-## Stage A — The bar
+Stage A — The bar
 Any deploy can be rolled back in minutes, and staging
 genuinely predicts production behaviour.
 
-## Blast radius
+ Blast radius
 
 | Stage | What changes                     | Blast radius                        | Rollback                            |
 |-------|----------------------------------|-------------------------------------|-------------------------------------|
@@ -52,9 +52,10 @@ bash scripts/parity-precheck.sh
 
 Step 2 — Staging/production parity (Stage B)
 
-# k8s/staging/app.yaml
+k8s/staging/app.yaml
 apiVersion: apps/v1
 kind: Deployment
+
 metadata:
   name: my-app
   namespace: staging
@@ -63,23 +64,26 @@ spec:
   selector:
     matchLabels:
       app: my-app
-  strategy:
+      
+   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
-  template:
+      
+template:
     metadata:
       labels:
         app: my-app
-    spec:
-      topologySpreadConstraints:
-        - maxSkew: 1
+        
+ spec:
+     topologySpreadConstraints:
+       - maxSkew: 1
           topologyKey: topology.kubernetes.io/zone
           whenUnsatisfiable: DoNotSchedule
           labelSelector:
             matchLabels:
-              app: my-app
+             app: my-app
       containers:
         - name: my-app
           image: yourusername/my-app:latest
@@ -160,7 +164,7 @@ bash scripts/verify-parity.sh
 
 Step 3 — Canary deploy + auto-rollback (Stage C)
 
-# k8s/production/canary.yaml
+ k8s/production/canary.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
